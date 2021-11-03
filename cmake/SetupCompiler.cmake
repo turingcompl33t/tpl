@@ -10,7 +10,10 @@ if (NOT (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
 endif ()
 
 # ---- Setup initial CXX flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -Wall -Werror -march=native")
+# NOTE: The -Wno-ambiguous-reversed-operator is a hack to avoid
+# some warnings that come from the LLVM headers, without having
+# to disable most warnings (but so that output is still clean).
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -Wall -Werror -march=native -Wno-ambiguous-reversed-operator")
 
 ############################################################
 #
@@ -29,6 +32,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -Wall -Werror -march=native")
 # For CMAKE_BUILD_TYPE=RelWithDebInfo
 #   -O2: Some compiler optimizations
 #   -ggdb: Enable gdb debugging
+
 set(CXX_FLAGS_DEBUG "-O0 -ggdb -fno-inline -fno-omit-frame-pointer -fno-optimize-sibling-calls")
 set(CXX_FLAGS_FASTDEBUG "-O1 -ggdb -fno-omit-frame-pointer -fno-optimize-sibling-calls")
 set(CXX_FLAGS_RELEASE "-O3 -DNDEBUG -fomit-frame-pointer -funroll-loops")

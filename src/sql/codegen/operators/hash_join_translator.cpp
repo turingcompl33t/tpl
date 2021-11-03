@@ -172,8 +172,12 @@ void HashJoinTranslator::ProbeJoinHashTable(ConsumerContext *ctx, FunctionBuilde
 
     // Probe hash table and check for a match. Loop condition becomes false as
     // soon as a match is found.
-    Loop entry_loop(function, edsl::Declare(entry, hash_table->Lookup(hash_val)),
-                    entry != nullptr && right_mark, edsl::Assign(entry, entry->Next()));
+    Loop entry_loop(
+        function, edsl::Declare(entry, hash_table->Lookup(hash_val)),
+        edsl::Value<bool>(entry.GetCodeGen(), entry.GetCodeGen()->CompareNe(
+                                                  entry.GetRaw(), entry.GetCodeGen()->Nil())) &&
+            right_mark,
+        edsl::Assign(entry, entry->Next()));
     {
       If check_hash(function, hash_val == entry->GetHash());
       {
@@ -194,8 +198,11 @@ void HashJoinTranslator::ProbeJoinHashTable(ConsumerContext *ctx, FunctionBuilde
       ctx->Consume(function);
     }
   } else {
-    Loop entry_loop(function, edsl::Declare(entry, hash_table->Lookup(hash_val)), entry != nullptr,
-                    edsl::Assign(entry, entry->Next()));
+    Loop entry_loop(
+        function, edsl::Declare(entry, hash_table->Lookup(hash_val)),
+        edsl::Value<bool>(entry.GetCodeGen(),
+                          entry.GetCodeGen()->CompareNe(entry.GetRaw(), entry.GetCodeGen()->Nil())),
+        edsl::Assign(entry, entry->Next()));
     {
       If check_hash(function, hash_val == entry->GetHash());
       {

@@ -91,8 +91,7 @@ void PostMaterializationAnalysis(const uint32_t n, const byte **entries,
 }
 
 template <typename T, typename U, uint64_t N>
-void CompressJoinHashTable(const uint32_t n, const byte **RESTRICT in,
-                           byte **RESTRICT out) {
+void CompressJoinHashTable(const uint32_t n, const byte **RESTRICT in, byte **RESTRICT out) {
   auto rows = reinterpret_cast<const Tuple<T, N> **>(in);
   auto compressed = reinterpret_cast<CompressedTuple<U, N + 1> **>(out);
   for (uint32_t i = 0; i < n; i++) {

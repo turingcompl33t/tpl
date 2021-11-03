@@ -189,11 +189,13 @@ void HashAggregationTranslator::PerformLookup(
   auto temp = edsl::VariableVT(codegen_, "temp", agg_payload_.GetPtrToType());
 
   function->Append(edsl::Declare(*agg_row_, edsl::Nil(codegen_, agg_payload_.GetPtrToType())));
-  Loop entry_loop(function, edsl::Declare(entry, hash_table->Lookup(hash_val)),
-                  edsl::ComparisonOp(parsing::Token::Type::EQUAL_EQUAL, *agg_row_,
-                                     edsl::Nil(codegen_, agg_payload_.GetPtrToType())) &&
-                      entry != nullptr,
-                  edsl::Assign(entry, entry->Next()));
+  Loop entry_loop(
+      function, edsl::Declare(entry, hash_table->Lookup(hash_val)),
+      edsl::ComparisonOp(parsing::Token::Type::EQUAL_EQUAL, *agg_row_,
+                         edsl::Nil(codegen_, agg_payload_.GetPtrToType())) &&
+          edsl::Value<bool>(entry.GetCodeGen(), entry.GetCodeGen()->CompareNe(
+                                                    entry.GetRaw(), entry.GetCodeGen()->Nil())),
+      edsl::Assign(entry, entry->Next()));
   {
     If check_hash(function, hash_val == entry->GetHash());
     {  // Hash match. Check key.
